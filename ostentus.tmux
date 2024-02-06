@@ -139,7 +139,8 @@ build_window_format() {
   local default_bg="$thm_gray"
   local default_statusbar="default"
   local separator_style="nobold,nounderscore,noitalics"
-  local invert_middle_separator="yes"
+
+  local invert_middle_separator="yes" # Add config options
 
   if [ "$fill" = "none" ]; then
     local show_left_separator="#[fg=$thm_gray,bg=$default_statusbar,$separator_style]$window_left_separator"
@@ -245,7 +246,6 @@ load_modules() {
 
   local iter module_name module_path
 
-  local add_space_between=$(get_tmux_option "@catppuccin_add_space_between" "yes")
   local space=""
 
   if [ "$add_space_between" = "yes" ]; then
@@ -301,7 +301,14 @@ main() {
   local thm_orange=$(get_tmux_option "@ostentus_theme_orange" "#fab387")
   local thm_black4=$(get_tmux_option "@ostentus_theme_black4" "#585b70")
 
-  local status_bg_color="$(get_tmux_option "@ostentus_theme_status_background" $thm_bg)"
+  local status_bg_color=$(get_tmux_option "@ostentus_theme_status_background" ${thm_bg})
+
+  local add_space_between=$(get_tmux_option "@ostentus_status_space_between" "yes")
+  local status_separator=""
+
+  if [ "$add_space_between" = "yes" ]; then
+    status_separator=$(get_tmux_option "@ostentus_status_separator" " ")
+  fi
 
   # Aggregate all commands in one array
   local tmux_commands=()
@@ -344,9 +351,9 @@ main() {
 
   # windows
   setw window-status-activity-style "fg=${thm_fg},bg=${status_bg_color},none"
-  setw window-status-separator ""
+  setw window-status-separator "${status_separator}"
   setw window-status-style "fg=${thm_fg},bg=${status_bg_color},none"
-  setw window-status-current-style fg=${status_bg_color},bg=${status_bg_color}
+  setw window-status-current-style "fg=${status_bg_color},bg=${status_bg_color}"
   # --------=== Statusline
 
   local window_left_separator=$(get_tmux_option "@catppuccin_window_left_separator" "█")
@@ -373,7 +380,7 @@ main() {
   local status_modules_left=$(get_tmux_option "@catppuccin_status_modules_left" "")
   local loaded_modules_left=$(load_modules "$status_modules_left" "$modules_custom_path" "$modules_status_path")
 
-  set status-left "$loaded_modules_left"
+  set status-left "$loaded_modules_left$status_separator"
   set status-right "$loaded_modules_right"
 
   # --------=== Modes
