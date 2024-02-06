@@ -57,52 +57,53 @@ build_pane_format() {
   local text=$4
   local fill=$5
 
-  if [ "$pane_status_enable" = "yes" ]; then
-    if [ "$fill" = "none" ]; then
-      local show_left_separator="#[fg=$thm_gray,bg=$thm_bg,nobold,nounderscore,noitalics]$pane_left_separator"
-      local show_number="#[fg=$thm_fg,bg=$thm_gray]$number"
-      local show_middle_separator="#[fg=$thm_fg,bg=$thm_gray,nobold,nounderscore,noitalics]$pane_middle_separator"
-      local show_text="#[fg=$thm_fg,bg=$thm_gray]$text"
-      local show_right_separator="#[fg=$thm_gray,bg=$thm_bg]$pane_right_separator"
-    fi
+  if [ "$pane_status_enable" != "yes" ]; then
+    return
+  fi
 
-    if [ "$fill" = "all" ]; then
-      local show_left_separator="#[fg=$color,bg=$thm_bg,nobold,nounderscore,noitalics]$pane_left_separator"
-      local show_number="#[fg=$background,bg=$color]$number"
-      local show_middle_separator="#[fg=$background,bg=$color,nobold,nounderscore,noitalics]$pane_middle_separator"
-      local show_text="#[fg=$background,bg=$color]$text"
-      local show_right_separator="#[fg=$color,bg=$thm_bg]$pane_right_separator"
-    fi
+  local show_left_separator show_number show_middle_separator show_text show_right_separator final_pane_format
 
-    if [ "$fill" = "number" ]; then
-      local show_number="#[fg=$background,bg=$color]$number"
-      local show_middle_separator="#[fg=$color,bg=$background,nobold,nounderscore,noitalics]$pane_middle_separator"
-      local show_text="#[fg=$thm_fg,bg=$background]$text"
+  local default_fg="$thm_fg"
+  local default_bg="$thm_gray"
+  local separator_style="nobold,nounderscore,noitalics"
 
-      if [ "$pane_number_position" = "right" ]; then
-        local show_left_separator="#[fg=$background,bg=$thm_bg,nobold,nounderscore,noitalics]$pane_left_separator"
-        local show_right_separator="#[fg=$color,bg=$thm_bg]$pane_right_separator"
-      fi
-
-      if [ "$pane_number_position" = "left" ]; then
-        local show_right_separator="#[fg=$background,bg=$thm_bg,nobold,nounderscore,noitalics]$pane_right_separator"
-        local show_left_separator="#[fg=$color,bg=$thm_bg]$pane_left_separator"
-      fi
-
-    fi
-
-    local final_pane_format
+  case "$fill" in
+  "none")
+    show_left_separator="#[fg=$thm_gray,bg=$thm_bg,$separator_style]$pane_left_separator"
+    show_number="#[fg=$default_fg,bg=$default_bg]$number"
+    show_middle_separator="#[fg=$default_fg,bg=$default_bg,$separator_style]$pane_middle_separator"
+    show_text="#[fg=$default_fg,bg=$default_bg]$text"
+    show_right_separator="#[fg=$thm_gray,bg=$thm_bg]$pane_right_separator"
+    ;;
+  "all")
+    show_left_separator="#[fg=$color,bg=$thm_bg,$separator_style]$pane_left_separator"
+    show_number="#[fg=$background,bg=$color]$number"
+    show_middle_separator="#[fg=$background,bg=$color,$separator_style]$pane_middle_separator"
+    show_text="#[fg=$background,bg=$color]$text"
+    show_right_separator="#[fg=$color,bg=$thm_bg]$pane_right_separator"
+    ;;
+  "number")
+    show_number="#[fg=$background,bg=$color]$number"
+    show_middle_separator="#[fg=$color,bg=$background,$separator_style]$pane_middle_separator"
+    show_text="#[fg=$default_fg,bg=$background]$text"
 
     if [ "$pane_number_position" = "right" ]; then
-      final_pane_format="$show_left_separator$show_text$show_middle_separator$show_number$show_right_separator"
+      show_left_separator="#[fg=$background,bg=$thm_bg,$separator_style]$pane_left_separator"
+      show_right_separator="#[fg=$color,bg=$thm_bg]$pane_right_separator"
+    else
+      show_left_separator="#[fg=$color,bg=$thm_bg]$pane_left_separator"
+      show_right_separator="#[fg=$background,bg=$thm_bg,$separator_style]$pane_right_separator"
     fi
+    ;;
+  esac
 
-    if [ "$pane_number_position" = "left" ]; then
-      final_pane_format="$show_left_separator$show_number$show_middle_separator$show_text$show_right_separator"
-    fi
-
-    echo "$final_pane_format"
+  if [ "$pane_number_position" = "right" ]; then
+    final_pane_format="$show_left_separator$show_text$show_middle_separator$show_number$show_right_separator"
+  else
+    final_pane_format="$show_left_separator$show_number$show_middle_separator$show_text$show_right_separator"
   fi
+
+  echo "$final_pane_format"
 }
 
 build_window_format() {
