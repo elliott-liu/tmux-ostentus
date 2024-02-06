@@ -120,22 +120,23 @@ build_window_format() {
 
   local default_fg="$thm_fg"
   local default_bg="$thm_gray"
+  local default_statusbar="default"
   local separator_style="nobold,nounderscore,noitalics"
 
   if [ "$fill" = "none" ]; then
-    local show_left_separator="#[fg=$thm_gray,bg=$thm_bg,$separator_style]$window_left_separator"
+    local show_left_separator="#[fg=$thm_gray,bg=$default_statusbar,$separator_style]$window_left_separator"
     local show_number="#[fg=$default_fg,bg=$default_bg]$number"
     local show_middle_separator="#[fg=$default_fg,bg=$default_bg,$separator_style]$window_middle_separator"
     local show_text="#[fg=$default_fg,bg=$default_bg]$text"
-    local show_right_separator="#[fg=$thm_gray,bg=$thm_bg]$window_right_separator"
+    local show_right_separator="#[fg=$thm_gray,bg=$default_statusbar]$window_right_separator"
   fi
 
   if [ "$fill" = "all" ]; then
-    local show_left_separator="#[fg=$color,bg=$thm_bg,$separator_style]$window_left_separator"
+    local show_left_separator="#[fg=$color,bg=$default_statusbar,$separator_style]$window_left_separator"
     local show_number="#[fg=$background,bg=$color]$number"
     local show_middle_separator="#[fg=$background,bg=$color,$separator_style]$window_middle_separator"
     local show_text="#[fg=$background,bg=$color]$text"
-    local show_right_separator="#[fg=$color,bg=$thm_bg]$window_right_separator"
+    local show_right_separator="#[fg=$color,bg=$default_statusbar]$window_right_separator"
   fi
 
   if [ "$fill" = "number" ]; then
@@ -144,13 +145,13 @@ build_window_format() {
     local show_text="#[fg=$default_fg,bg=$background]$text"
 
     if [ "$window_number_position" = "right" ]; then
-      local show_left_separator="#[fg=$background,bg=$thm_bg,$separator_style]$window_left_separator"
-      local show_right_separator="#[fg=$color,bg=$thm_bg]$window_right_separator"
+      local show_left_separator="#[fg=$background,bg=$default_statusbar,$separator_style]$window_left_separator"
+      local show_right_separator="#[fg=$color,bg=$default_statusbar]$window_right_separator"
     fi
 
     if [ "$window_number_position" = "left" ]; then
-      local show_right_separator="#[fg=$background,bg=$thm_bg,$separator_style]$window_right_separator"
-      local show_left_separator="#[fg=$color,bg=$thm_bg]$window_left_separator"
+      local show_right_separator="#[fg=$background,bg=$default_statusbar,$separator_style]$window_right_separator"
+      local show_left_separator="#[fg=$color,bg=$default_statusbar]$window_left_separator"
     fi
   fi
 
@@ -166,43 +167,51 @@ build_window_format() {
 
   echo "$final_window_format"
 }
-
 build_status_module() {
   local index=$1
   local icon=$2
   local color=$3
   local text=$4
+  local bg_color="$thm_gray"     # Default background color
+  local sep_bg_color="$bg_color" # Separator background color, may change based on conditions
+  local status_bg_color=$(get_tmux_option "@ostentus_theme_status_background" "${thm_bg}")
 
-  local separator_style="nobold,nounderscore,noitalics"
-  local show_left_separator="#[fg=$color,bg=$thm_bg,$separator_style]$status_left_separator"
-  local show_right_separator="#[fg=$thm_gray,bg=$thm_bg,$separator_style]$status_right_separator"
-  local show_icon="#[fg=$thm_bg,bg=$color,$separator_style]$icon "
-  local show_text="#[fg=$thm_fg,bg=$thm_gray] $text"
+  # Default formatting options
+  local nobold="nobold"
+  local nounderscore="nounderscore"
+  local noitalics="noitalics"
 
+  # Initial left and right separator settings
+  local show_left_separator="#[fg=$color,bg=$status_bg_color,$nobold,$nounderscore,$noitalics]$status_left_separator"
+  local show_right_separator="#[fg=$thm_gray,bg=$status_bg_color,$nobold,$nounderscore,$noitalics]$status_right_separator"
+
+  # Configure module based on status_fill
   case "$status_fill" in
   "icon")
-    show_text="#[fg=$thm_fg,bg=$thm_gray] $text"
+    show_icon="#[fg=$thm_gray,bg=$color,$nobold,$nounderscore,$noitalics]$icon "
+    show_text="#[fg=$thm_fg,bg=$bg_color] $text"
     ;;
   "all")
-    show_text="#[fg=$thm_bg,bg=$color]$text"
+    bg_color="$color"
+    show_icon="#[fg=$thm_gray,bg=$bg_color,$nobold,$nounderscore,$noitalics]$icon "
+    show_text="#[fg=$thm_gray,bg=$bg_color]$text"
     ;;
   esac
 
+  # Adjust separators for connected separators
   if [ "$status_connect_separator" = "yes" ]; then
-    show_left_separator="#[fg=$color,bg=$thm_gray,$separator_style]$status_left_separator"
-    show_right_separator="#[fg=$thm_gray,bg=$thm_gray,$separator_style]$status_right_separator"
-    [ "$status_fill" = "all" ] && show_right_separator="#[fg=$color,bg=$color,$separator_style]$status_right_separator"
+    sep_bg_color="$color"
+    show_left_separator="#[fg=$color,bg=$bg_color,$nobold,$nounderscore,$noitalics]$status_left_separator"
+    show_right_separator="#[fg=$bg_color,bg=$sep_bg_color,$nobold,$nounderscore,$noitalics]$status_right_separator"
   fi
 
-  if [ "$status_right_separator_inverse" = "yes" ]; then
-    show_right_separator="#[fg=$thm_gray,bg=$color,$separator_style]$status_right_separator"
-    [ "$status_connect_separator" != "yes" ] && show_right_separator="#[fg=$thm_bg,bg=$color,$separator_style]$status_right_separator"
-  fi
+  # Inverse right separator color when specified
+  [ "$status_right_separator_inverse" = "yes" ] && show_right_separator="#[fg=$thm_gray,bg=$color,$nobold,$nounderscore,$noitalics]$status_right_separator"
 
-  if [ "$index" -eq 0 ]; then
-    show_left_separator="#[fg=$color,bg=$thm_bg,$separator_style]$status_left_separator"
-  fi
+  # Special case for the first module
+  [ "$index" -eq 0 ] && show_left_separator="#[fg=$color,bg=$status_bg_color,$nobold,$nounderscore,$noitalics]$status_left_separator"
 
+  # Output the constructed status module
   echo "$show_left_separator$show_icon$show_text$show_right_separator"
 }
 
@@ -259,6 +268,8 @@ load_modules() {
 }
 
 main() {
+  local status_bg_color=$(get_tmux_option "@ostentus_theme_status_background" "${thm_bg}")
+
   local thm_bg=$(get_tmux_option "@ostentus_theme_background" "#1e1e2e")
   local thm_fg=$(get_tmux_option "@ostentus_theme_foreground" "#cdd6f4")
   local thm_cyan=$(get_tmux_option "@ostentus_theme_cyan" "#89dceb")
@@ -285,14 +296,15 @@ main() {
 
   # status
   set status "on"
-  set status-bg "${thm_bg}"
+  set status-bg "${status_bg_color}"
   set status-justify "left"
   set status-left-length "100"
   set status-right-length "100"
+  set status-left-style fg={$status_bg_color},bg={$status_bg_color}
 
   # messages
-  set message-style "fg=${thm_cyan},bg=${thm_gray},align=centre"
-  set message-command-style "fg=${thm_cyan},bg=${thm_gray},align=centre"
+  set message-style "fg=${thm_cyan},bg=${status_bg_color},align=centre"
+  set message-command-style "fg=${thm_cyan},bg=${status_bg_color},align=centre"
 
   # panes
   local pane_status_enable=$(get_tmux_option "@catppuccin_pane_status_enabled" "no") # yes
@@ -311,10 +323,10 @@ main() {
   setw pane-border-format "$pane_format"
 
   # windows
-  setw window-status-activity-style "fg=${thm_fg},bg=${thm_bg},none"
+  setw window-status-activity-style "fg=${thm_fg},bg=${status_bg_color},none"
   setw window-status-separator ""
-  setw window-status-style "fg=${thm_fg},bg=${thm_bg},none"
-
+  setw window-status-style "fg=${thm_fg},bg=${status_bg_color},none"
+  setw window-status-current-style fg=${status_bg_color},bg=${status_bg_color}
   # --------=== Statusline
 
   local window_left_separator=$(get_tmux_option "@catppuccin_window_left_separator" "█")
