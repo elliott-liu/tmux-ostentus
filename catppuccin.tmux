@@ -32,6 +32,13 @@ append_tmux_window_command() {
 build_window_icon() {
   local window_status_icon_enable=$(get_tmux_option "@catppuccin_window_status_icon_enable" "yes")
 
+  local show_window_status="#F"
+
+  if [ "$window_status_icon_enable" = "no" ]; then
+    echo "$show_window_status"
+    return
+  fi
+
   local custom_icon_window_last=$(get_tmux_option "@catppuccin_icon_window_last" "󰖰")
   local custom_icon_window_current=$(get_tmux_option "@catppuccin_icon_window_current" "󰖯")
   local custom_icon_window_zoom=$(get_tmux_option "@catppuccin_icon_window_zoom" "󰁌")
@@ -40,14 +47,7 @@ build_window_icon() {
   local custom_icon_window_activity=$(get_tmux_option "@catppuccin_icon_window_activity" "󰖲")
   local custom_icon_window_bell=$(get_tmux_option "@catppuccin_icon_window_bell" "󰂞")
 
-  if [ "$window_status_icon_enable" = "yes" ]; then
-    # #!~[*-]MZ
-    local show_window_status="#{?window_activity_flag,${custom_icon_window_activity},}#{?window_bell_flag,${custom_icon_window_bell},}#{?window_silence_flag,${custom_icon_window_silent},}#{?window_active,${custom_icon_window_current},}#{?window_last_flag,${custom_icon_window_last},}#{?window_marked_flag,${custom_icon_window_mark},}#{?window_zoomed_flag,${custom_icon_window_zoom},}"
-  fi
-
-  if [ "$window_status_icon_enable" = "no" ]; then
-    local show_window_status="#F"
-  fi
+  show_window_status="#{?window_activity_flag,${custom_icon_window_activity},}#{?window_bell_flag,${custom_icon_window_bell},}#{?window_silence_flag,${custom_icon_window_silent},}#{?window_active,${custom_icon_window_current},}#{?window_last_flag,${custom_icon_window_last},}#{?window_marked_flag,${custom_icon_window_mark},}#{?window_zoomed_flag,${custom_icon_window_zoom},}"
 
   echo "$show_window_status"
 }
