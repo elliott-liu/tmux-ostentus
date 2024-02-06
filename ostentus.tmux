@@ -210,33 +210,49 @@ load_modules() {
   shift
   local module_directories=("$@")
 
-  local -i module_index=0
-  local module_name
-  local module_path
-  local loaded_modules
+  local module_index=0
+  local loaded_modules=""
   local IN=$modules_list
+
+  local iter module_name module_path
+
+  local add_space_between=$(get_tmux_option "@catppuccin_add_space_between" "yes")
+  local space=""
+
+  if [ "$add_space_between" = "yes" ]; then
+    space=" "
+  fi
 
   # https://stackoverflow.com/questions/918886/how-do-i-split-a-string-on-a-delimiter-in-bash#15988793
   while [ "$IN" != "$iter" ]; do
-    # extract the substring from start of string up to delimiter.
-    iter=${IN%% *}
-    # delete this first "element" AND next separator, from $IN.
-    IN="${IN#$iter }"
-    # Print (or doing anything with) the first "element".
+    iter=${IN%% *}    # extract the substring from start of string up to delimiter.
+    IN="${IN#$iter }" # delete this first "element" AND next separator, from $IN.
+    module_name=$iter # Print (or doing anything with) the first "element".
 
-    module_name=$iter
+    module_path=$modules_custom_path/$module_name.sh
+    if source $module_path 2>/dev/null; then
+      loaded_modules="${loaded_modules}${space}$(show_$module_name $module_index)"
+      ((module_index++))
+      continue
+    fi
 
-    for module_dir in "${module_directories[@]}"; do
-      module_path="$module_dir/$module_name.sh"
+    module_path=$modules_status_path/$module_name.sh
+    if source $module_path 2>/dev/null; then
+      loaded_modules="${loaded_modules}${space}$(show_$module_name $module_index)"
+      ((module_index++))
+      continue
+    fi
 
-      if [ -r "$module_path" ]; then
-        source "$module_path"
-        loaded_modules="$loaded_modules$("show_$module_name" "$module_index")"
-        module_index+=1
-        break
-      fi
-    done
+    module_path=$modules_window_path/$module_name.sh
+    if source $module_path 2>/dev/null; then
+      loaded_modules="${loaded_modules}${space}$(show_$module_name $module_index)"
+      ((module_index++))
+    fi
   done
+
+  if [ "$add_space_between" = "yes" ]; then
+    loaded_modules=${loaded_modules#$space}
+  fi
 
   echo "$loaded_modules"
 }
