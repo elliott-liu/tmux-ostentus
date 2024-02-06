@@ -2,22 +2,16 @@
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 get_tmux_option() {
-  local option value default
-  option="$1"
-  default="$2"
-  value=$(tmux show-option -gqv "$option")
+  local option="$1"
+  local default="$2"
+  local value
 
-  if [ -n "$value" ]; then
-    if [ "$value" = "null" ]; then
-      echo ""
+  value=$(tmux show-option -gqv "$option" 2>/dev/null)
 
-    else
-      echo "$value"
-    fi
-
-  else
+  if [ -z "$value" ] || [ "$value" = "null" ]; then
     echo "$default"
-
+  else
+    echo "$value"
   fi
 }
 
