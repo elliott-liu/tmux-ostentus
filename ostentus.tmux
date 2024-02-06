@@ -172,8 +172,8 @@ build_status_module() {
   local icon=$2
   local color=$3
   local text=$4
-  local bg_color="$thm_gray"     # Default background color
-  local sep_bg_color="$bg_color" # Separator background color, may change based on conditions
+  local bg_color=$thm_gray     # Default background color
+  local sep_bg_color=$bg_color # Separator background color, may change based on conditions
   local status_bg_color=$(get_tmux_option "@ostentus_theme_status_background" ${thm_bg})
 
   # Default formatting options
@@ -296,7 +296,7 @@ main() {
 
   # status
   set status "on"
-  set status-bg "${status_bg_color}"
+  set status-bg ${status_bg_color}
   set status-justify "left"
   set status-left-length "100"
   set status-right-length "100"
