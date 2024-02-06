@@ -113,52 +113,53 @@ build_window_format() {
   local text=$4
   local fill=$5
 
-  if [ "$window_status_enable" != "yes" ]; then
-    return
+  if [ "$window_status_enable" = "yes" ]; then
+    local icon="$(build_window_icon)"
+    text="$text $icon"
   fi
 
-  local icon="$(build_window_icon)"
-  text="$text $icon"
+  if [ "$fill" = "none" ]; then
+    local show_left_separator="#[fg=$thm_gray,bg=$thm_bg,nobold,nounderscore,noitalics]$window_left_separator"
+    local show_number="#[fg=$thm_fg,bg=$thm_gray]$number"
+    local show_middle_separator="#[fg=$thm_fg,bg=$thm_gray,nobold,nounderscore,noitalics]$window_middle_separator"
+    local show_text="#[fg=$thm_fg,bg=$thm_gray]$text"
+    local show_right_separator="#[fg=$thm_gray,bg=$thm_bg]$window_right_separator"
 
-  local show_left_separator show_number show_middle_separator show_text show_right_separator final_window_format
-  local separator_style="nobold,nounderscore,noitalics"
+  fi
 
-  local default_fg="$thm_fg"
-  local default_bg="$thm_gray"
+  if [ "$fill" = "all" ]; then
+    local show_left_separator="#[fg=$color,bg=$thm_bg,nobold,nounderscore,noitalics]$window_left_separator"
+    local show_number="#[fg=$background,bg=$color]$number"
+    local show_middle_separator="#[fg=$background,bg=$color,nobold,nounderscore,noitalics]$window_middle_separator"
+    local show_text="#[fg=$background,bg=$color]$text"
+    local show_right_separator="#[fg=$color,bg=$thm_bg]$window_right_separator"
 
-  case "$fill" in
-  "none")
-    show_left_separator="#[fg=$thm_gray,bg=$thm_bg,$separator_style]$window_left_separator"
-    show_number="#[fg=$default_fg,bg=$default_bg]$number"
-    show_middle_separator="#[fg=$default_fg,bg=$default_bg,$separator_style]$window_middle_separator"
-    show_text="#[fg=$default_fg,bg=$default_bg]$text"
-    show_right_separator="#[fg=$thm_gray,bg=$thm_bg]$window_right_separator"
-    ;;
-  "all")
-    show_left_separator="#[fg=$color,bg=$thm_bg,$separator_style]$window_left_separator"
-    show_number="#[fg=$background,bg=$color]$number"
-    show_middle_separator="#[fg=$background,bg=$color,$separator_style]$window_middle_separator"
-    show_text="#[fg=$background,bg=$color]$text"
-    show_right_separator="#[fg=$color,bg=$thm_bg]$window_right_separator"
-    ;;
-  "number")
-    show_number="#[fg=$background,bg=$color]$number"
-    show_middle_separator="#[fg=$color,bg=$background,$separator_style]$window_middle_separator"
-    show_text="#[fg=$default_fg,bg=$background]$text"
+  fi
+
+  if [ "$fill" = "number" ]; then
+    local show_number="#[fg=$background,bg=$color]$number"
+    local show_middle_separator="#[fg=$color,bg=$background,nobold,nounderscore,noitalics]$window_middle_separator"
+    local show_text="#[fg=$thm_fg,bg=$background]$text"
 
     if [ "$window_number_position" = "right" ]; then
-      show_left_separator="#[fg=$background,bg=$thm_bg,$separator_style]$window_left_separator"
-      show_right_separator="#[fg=$color,bg=$thm_bg]$window_right_separator"
-    else
-      show_left_separator="#[fg=$color,bg=$thm_bg]$window_left_separator"
-      show_right_separator="#[fg=$background,bg=$thm_bg,$separator_style]$window_right_separator"
+      local show_left_separator="#[fg=$background,bg=$thm_bg,nobold,nounderscore,noitalics]$window_left_separator"
+      local show_right_separator="#[fg=$color,bg=$thm_bg]$window_right_separator"
     fi
-    ;;
-  esac
+
+    if [ "$window_number_position" = "left" ]; then
+      local show_right_separator="#[fg=$background,bg=$thm_bg,nobold,nounderscore,noitalics]$window_right_separator"
+      local show_left_separator="#[fg=$color,bg=$thm_bg]$window_left_separator"
+    fi
+
+  fi
+
+  local final_window_format
 
   if [ "$window_number_position" = "right" ]; then
     final_window_format="$show_left_separator$show_text$show_middle_separator$show_number$show_right_separator"
-  else
+  fi
+
+  if [ "$window_number_position" = "left" ]; then
     final_window_format="$show_left_separator$show_number$show_middle_separator$show_text$show_right_separator"
   fi
 
