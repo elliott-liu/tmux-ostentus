@@ -171,54 +171,34 @@ build_status_module() {
   local color=$3
   local text=$4
 
-  if [ "$status_fill" = "icon" ]; then
-    local show_left_separator="#[fg=$color,bg=$thm_gray,nobold,nounderscore,noitalics]$status_left_separator"
+  local separator_style="nobold,nounderscore,noitalics"
+  local show_left_separator="#[fg=$color,bg=$thm_bg,$separator_style]$status_left_separator"
+  local show_right_separator="#[fg=$thm_gray,bg=$thm_bg,$separator_style]$status_right_separator"
+  local show_icon="#[fg=$thm_bg,bg=$color,$separator_style]$icon "
+  local show_text="#[fg=$thm_fg,bg=$thm_gray] $text"
 
-    local show_icon="#[fg=$thm_bg,bg=$color,nobold,nounderscore,noitalics]$icon "
-    local show_text="#[fg=$thm_fg,bg=$thm_gray] $text"
+  case "$status_fill" in
+  "icon")
+    show_text="#[fg=$thm_fg,bg=$thm_gray] $text"
+    ;;
+  "all")
+    show_text="#[fg=$thm_bg,bg=$color]$text"
+    ;;
+  esac
 
-    local show_right_separator="#[fg=$thm_gray,bg=$thm_bg,nobold,nounderscore,noitalics]$status_right_separator"
-
-    if [ "$status_connect_separator" = "yes" ]; then
-      local show_left_separator="#[fg=$color,bg=$thm_gray,nobold,nounderscore,noitalics]$status_left_separator"
-      local show_right_separator="#[fg=$thm_gray,bg=$thm_gray,nobold,nounderscore,noitalics]$status_right_separator"
-
-    else
-      local show_left_separator="#[fg=$color,bg=$thm_bg,nobold,nounderscore,noitalics]$status_left_separator"
-      local show_right_separator="#[fg=$thm_gray,bg=$thm_bg,nobold,nounderscore,noitalics]$status_right_separator"
-    fi
-
-  fi
-
-  if [ "$status_fill" = "all" ]; then
-    local show_left_separator="#[fg=$color,bg=$thm_gray,nobold,nounderscore,noitalics]$status_left_separator"
-
-    local show_icon="#[fg=$thm_bg,bg=$color,nobold,nounderscore,noitalics]$icon "
-    local show_text="#[fg=$thm_bg,bg=$color]$text"
-
-    local show_right_separator="#[fg=$color,bg=$thm_gray,nobold,nounderscore,noitalics]$status_right_separator"
-
-    if [ "$status_connect_separator" = "yes" ]; then
-      local show_left_separator="#[fg=$color,nobold,nounderscore,noitalics]$status_left_separator"
-      local show_right_separator="#[fg=$color,bg=$color,nobold,nounderscore,noitalics]$status_right_separator"
-
-    else
-      local show_left_separator="#[fg=$color,bg=$thm_bg,nobold,nounderscore,noitalics]$status_left_separator"
-      local show_right_separator="#[fg=$color,bg=$thm_bg,nobold,nounderscore,noitalics]$status_right_separator"
-    fi
-
+  if [ "$status_connect_separator" = "yes" ]; then
+    show_left_separator="#[fg=$color,bg=$thm_gray,$separator_style]$status_left_separator"
+    show_right_separator="#[fg=$thm_gray,bg=$thm_gray,$separator_style]$status_right_separator"
+    [ "$status_fill" = "all" ] && show_right_separator="#[fg=$color,bg=$color,$separator_style]$status_right_separator"
   fi
 
   if [ "$status_right_separator_inverse" = "yes" ]; then
-    if [ "$status_connect_separator" = "yes" ]; then
-      local show_right_separator="#[fg=$thm_gray,bg=$color,nobold,nounderscore,noitalics]$status_right_separator"
-    else
-      local show_right_separator="#[fg=$thm_bg,bg=$color,nobold,nounderscore,noitalics]$status_right_separator"
-    fi
+    show_right_separator="#[fg=$thm_gray,bg=$color,$separator_style]$status_right_separator"
+    [ "$status_connect_separator" != "yes" ] && show_right_separator="#[fg=$thm_bg,bg=$color,$separator_style]$status_right_separator"
   fi
 
-  if [ $(($index)) -eq 0 ]; then
-    local show_left_separator="#[fg=$color,bg=$thm_bg,nobold,nounderscore,noitalics]$status_left_separator"
+  if [ "$index" -eq 0 ]; then
+    show_left_separator="#[fg=$color,bg=$thm_bg,$separator_style]$status_left_separator"
   fi
 
   echo "$show_left_separator$show_icon$show_text$show_right_separator"
