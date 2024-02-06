@@ -5,7 +5,7 @@ show_weather() {
   local color="$(get_tmux_option "@catppuccin_weather_color" "$thm_yellow")"
   local text="$(get_tmux_option "@catppuccin_weather_text" "#{weather}")"
 
-  local module=$( build_status_module "$index" "$icon" "$color" "$text" )
+  local module=$(build_status_module "$index" "$icon" "$color" "$text")
 
   echo "$module"
 }

@@ -17,7 +17,7 @@ show_battery() {
   local color=$(get_tmux_option "@catppuccin_battery_color" "$thm_yellow")
   local text=$(get_tmux_option "@catppuccin_battery_text" "#{battery_percentage}")
 
-  local module=$( build_status_module "$index" "$icon" "$color" "$text" )
+  local module=$(build_status_module "$index" "$icon" "$color" "$text")
 
   echo "$module"
 }
