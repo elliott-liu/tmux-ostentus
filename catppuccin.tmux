@@ -15,16 +15,18 @@ get_tmux_option() {
   fi
 }
 
-set() {
-  local option=$1
-  local value=$2
-  tmux_commands+=(set-option -gq "$option" "$value" ";")
+append_tmux_command() {
+  local option="$1"
+  local value="$2"
+  declare -g -a tmux_commands # Ensure tmux_commands is declared as an array if not already.
+  tmux_commands+=("set-option -gq '$option' '$value'")
 }
 
-setw() {
-  local option=$1
-  local value=$2
-  tmux_commands+=(set-window-option -gq "$option" "$value" ";")
+append_tmux_window_command() {
+  local option="$1"
+  local value="$2"
+  declare -g -a tmux_commands # Ensure tmux_commands is declared as an array if not already.
+  tmux_commands+=("set-window-option -gq '$option' '$value'")
 }
 
 build_window_icon() {
@@ -289,15 +291,15 @@ main() {
   local modules_pane_path=$PLUGIN_DIR/pane
 
   # status
-  set status "on"
-  set status-bg "${thm_bg}"
-  set status-justify "left"
-  set status-left-length "100"
-  set status-right-length "100"
+  append_tmux_command status "on"
+  append_tmux_command status-bg "${thm_bg}"
+  append_tmux_command status-justify "left"
+  append_tmux_commandstatus-left-length "100"
+  append_tmux_commandstatus-right-length "100"
 
   # messages
-  set message-style "fg=${thm_cyan},bg=${thm_gray},align=centre"
-  set message-command-style "fg=${thm_cyan},bg=${thm_gray},align=centre"
+  append_tmux_commandmessage-style "fg=${thm_cyan},bg=${thm_gray},align=centre"
+  append_tmux_commandmessage-command-style "fg=${thm_cyan},bg=${thm_gray},align=centre"
 
   # panes
   local pane_status_enable=$(get_tmux_option "@catppuccin_pane_status_enabled" "no") # yes
@@ -310,15 +312,15 @@ main() {
   local pane_number_position=$(get_tmux_option "@catppuccin_pane_number_position" "left") # right, left
   local pane_format=$(load_modules "pane_default_format" "$modules_custom_path" "$modules_pane_path")
 
-  setw pane-border-status "$pane_border_status"
-  setw pane-active-border-style "$pane_active_border_style"
-  setw pane-border-style "$pane_border_style"
-  setw pane-border-format "$pane_format"
+  append_tmux_window_command pane-border-status "$pane_border_status"
+  append_tmux_window_command pane-active-border-style "$pane_active_border_style"
+  append_tmux_window_command pane-border-style "$pane_border_style"
+  append_tmux_window_command pane-border-format "$pane_format"
 
   # windows
-  setw window-status-activity-style "fg=${thm_fg},bg=${thm_bg},none"
-  setw window-status-separator ""
-  setw window-status-style "fg=${thm_fg},bg=${thm_bg},none"
+  append_tmux_window_command window-status-activity-style "fg=${thm_fg},bg=${thm_bg},none"
+  append_tmux_window_command window-status-separator ""
+  append_tmux_window_command window-status-style "fg=${thm_fg},bg=${thm_bg},none"
 
   # --------=== Statusline
 
@@ -331,8 +333,8 @@ main() {
   local window_format=$(load_modules "window_default_format" "$modules_custom_path" "$modules_window_path")
   local window_current_format=$(load_modules "window_current_format" "$modules_custom_path" "$modules_window_path")
 
-  setw window-status-format "$window_format"
-  setw window-status-current-format "$window_current_format"
+  append_tmux_window_command window-status-format "$window_format"
+  append_tmux_window_command window-status-current-format "$window_current_format"
 
   local status_left_separator=$(get_tmux_option "@catppuccin_status_left_separator" "")
   local status_right_separator=$(get_tmux_option "@catppuccin_status_right_separator" "█")
@@ -346,13 +348,13 @@ main() {
   local status_modules_left=$(get_tmux_option "@catppuccin_status_modules_left" "")
   local loaded_modules_left=$(load_modules "$status_modules_left" "$modules_custom_path" "$modules_status_path")
 
-  set status-left "$loaded_modules_left"
-  set status-right "$loaded_modules_right"
+  append_tmux_commandstatus-left "$loaded_modules_left"
+  append_tmux_commandstatus-right "$loaded_modules_right"
 
   # --------=== Modes
   #
-  setw clock-mode-colour "${thm_blue}"
-  setw mode-style "fg=${thm_pink} bg=${thm_black4} bold"
+  append_tmux_window_command clock-mode-colour "${thm_blue}"
+  append_tmux_window_command mode-style "fg=${thm_pink} bg=${thm_black4} bold"
 
   tmux "${tmux_commands[@]}"
 }
