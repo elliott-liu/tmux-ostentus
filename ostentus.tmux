@@ -259,25 +259,22 @@ load_modules() {
 }
 
 main() {
-  local theme
-  theme="$(get_tmux_option "@catppuccin_flavour" "mocha")"
+  local thm_bg=$(get_tmux_option "@ostentus_theme_background" "#1e1e2e")
+  local thm_fg=$(get_tmux_option "@ostentus_theme_foreground" "#cdd6f4")
+  local thm_cyan=$(get_tmux_option "@ostentus_theme_cyan" "#89dceb")
+  local thm_black=$(get_tmux_option "@ostentus_theme_black" "#181825")
+  local thm_gray=$(get_tmux_option "@ostentus_theme_gray" "#313244")
+  local thm_magenta=$(get_tmux_option "@ostentus_theme_magenta" "#cba6f7")
+  local thm_pink=$(get_tmux_option "@ostentus_theme_pink" "#f5c2e7")
+  local thm_red=$(get_tmux_option "@ostentus_theme_red" "#f38ba8")
+  local thm_green=$(get_tmux_option "@ostentus_theme_green" "#a6e3a1")
+  local thm_yellow=$(get_tmux_option "@ostentus_theme_yellow" "#f9e2af")
+  local thm_blue=$(get_tmux_option "@ostentus_theme_blue" "#89b4fa")
+  local thm_orange=$(get_tmux_option "@ostentus_theme_orange" "#fab387")
+  local thm_black4=$(get_tmux_option "@ostentus_theme_black4" "#585b70")
 
   # Aggregate all commands in one array
   local tmux_commands=()
-
-  # NOTE: Pulling in the selected theme by the theme that's being set as local
-  # variables.
-  # shellcheck source=catppuccin-frappe.tmuxtheme
-  # https://github.com/dylanaraps/pure-sh-bible#parsing-a-keyval-file
-  while IFS='=' read -r key val; do
-    # Skip over lines containing comments.
-    # (Lines starting with '#').
-    [ "${key##\#*}" ] || continue
-
-    # '$key' stores the key.
-    # '$val' stores the value.
-    eval "local $key"="$val"
-  done <"${PLUGIN_DIR}/catppuccin-${theme}.tmuxtheme"
 
   # module directories
   local custom_path="$(get_tmux_option "@catppuccin_custom_plugin_dir" "${PLUGIN_DIR}/custom")"
