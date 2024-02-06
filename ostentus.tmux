@@ -106,6 +106,23 @@ build_pane_format() {
   echo "$final_pane_format"
 }
 
+swapColorOrder() {
+    local condition="$1"
+    local color1="$2"
+    local color2="$3"
+    local separator_style="$4"
+    local window_middle_separator="$5"
+
+    if [ "$condition" = "yes" ]; then
+        local temp="$color1"
+        color1="$color2"
+        color2="$temp"
+    fi
+
+    local show_middle_separator="#[fg=$color1,bg=$color2,$separator_style]$window_middle_separator"
+    echo "$show_middle_separator"
+}
+
 build_window_format() {
   local number=$1
   local color=$2
@@ -122,6 +139,7 @@ build_window_format() {
   local default_bg="$thm_gray"
   local default_statusbar="default"
   local separator_style="nobold,nounderscore,noitalics"
+  local invert_middle_separator="yes"
 
   if [ "$fill" = "none" ]; then
     local show_left_separator="#[fg=$thm_gray,bg=$default_statusbar,$separator_style]$window_left_separator"
@@ -134,7 +152,7 @@ build_window_format() {
   if [ "$fill" = "all" ]; then
     local show_left_separator="#[fg=$color,bg=$default_statusbar,$separator_style]$window_left_separator"
     local show_number="#[fg=$background,bg=$color]$number"
-    local show_middle_separator="#[fg=$background,bg=$color,$separator_style]$window_middle_separator"
+    local show_middle_separator=$(swapColorOrder "$invert_middle_separator" "$background" "$color" "$separator_style" "$window_middle_separator")
     local show_text="#[fg=$background,bg=$color]$text"
     local show_right_separator="#[fg=$color,bg=$default_statusbar]$window_right_separator"
   fi
