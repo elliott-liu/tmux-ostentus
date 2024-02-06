@@ -167,6 +167,7 @@ build_window_format() {
 
   echo "$final_window_format"
 }
+
 build_status_module() {
   local index=$1
   local icon=$2
@@ -268,8 +269,6 @@ load_modules() {
 }
 
 main() {
-  local status_bg_color=$(get_tmux_option "@ostentus_theme_status_background" ${thm_bg})
-
   local thm_bg=$(get_tmux_option "@ostentus_theme_background" "#1e1e2e")
   local thm_fg=$(get_tmux_option "@ostentus_theme_foreground" "#cdd6f4")
   local thm_cyan=$(get_tmux_option "@ostentus_theme_cyan" "#89dceb")
@@ -284,6 +283,8 @@ main() {
   local thm_orange=$(get_tmux_option "@ostentus_theme_orange" "#fab387")
   local thm_black4=$(get_tmux_option "@ostentus_theme_black4" "#585b70")
 
+  local status_bg_color="$(get_tmux_option "@ostentus_theme_status_background" $thm_bg)"
+
   # Aggregate all commands in one array
   local tmux_commands=()
 
@@ -296,11 +297,12 @@ main() {
 
   # status
   set status "on"
-  set status-bg ${status_bg_color}
+  set status-bg "${status_bg_color}"
   set status-justify "left"
   set status-left-length "100"
   set status-right-length "100"
-  set status-left-style fg={$status_bg_color},bg={$status_bg_color}
+  set status-left-style "fg=${status_bg_color},bg=${status_bg_color}"
+
 
   # messages
   set message-style "fg=${thm_cyan},bg=${status_bg_color},align=centre"
