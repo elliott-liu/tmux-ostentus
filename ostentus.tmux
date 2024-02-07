@@ -145,7 +145,7 @@ build_window_format() {
   if [ "$fill" = "none" ]; then
     local show_left_separator="#[fg=$thm_gray,bg=$default_statusbar,$separator_style]$window_left_separator"
     local show_number="#[fg=$default_fg,bg=$default_bg]$number"
-    local show_middle_separator="#[fg=$default_fg,bg=$default_bg,$separator_style]$window_middle_separator"
+    local show_middle_separator=$(swapColorOrder "$invert_middle_separator" "$default_fg" "$default_bg" "$separator_style" "$window_middle_separator")
     local show_text="#[fg=$default_fg,bg=$default_bg]$text"
     local show_right_separator="#[fg=$thm_gray,bg=$default_statusbar]$window_right_separator"
   fi
