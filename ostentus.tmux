@@ -129,6 +129,7 @@ build_window_format() {
   local background=$3
   local text=$4
   local fill=$5
+  local invert_middle_separator=$6
 
   if [ "$window_status_enable" = "yes" ]; then
     local icon="$(build_window_icon)"
@@ -139,8 +140,6 @@ build_window_format() {
   local default_bg="$thm_gray"
   local default_statusbar="default"
   local separator_style="nobold,nounderscore,noitalics"
-
-  local invert_middle_separator="yes" # Add config options
 
   if [ "$fill" = "none" ]; then
     local show_left_separator="#[fg=$thm_gray,bg=$default_statusbar,$separator_style]$window_left_separator"
@@ -287,6 +286,7 @@ load_modules() {
 }
 
 main() {
+
   local thm_bg=$(get_tmux_option "@ostentus_theme_background" "#1e1e2e")
   local thm_fg=$(get_tmux_option "@ostentus_theme_foreground" "#cdd6f4")
   local thm_cyan=$(get_tmux_option "@ostentus_theme_cyan" "#89dceb")
